@@ -1,0 +1,79 @@
+//fw.setActiveWindow(fw.documents[2]);
+//fw.getDocumentDOM().selectAll();
+//for (i = 1;i<fw.documents.length;i++){
+var outtxt = "";
+outtxt += '<?xml version="1.0" standalone="yes"?>\r\n<WBA>\r\n';
+for (d = 0;d<fw.documents.length;d++){
+	var dom	= fw.documents[d];
+	var domPath = fw.getDocumentPath(dom);
+	var domPathHandler = domPath.split("/");
+	var domName = domPathHandler[domPathHandler.length-1];//文件名
+	domPathHandler[domPathHandler.length-1] = "";
+	domPath = domPathHandler.join("/");//路径名
+	if(domPath[domPath.length-1]=="/"){ domPath = domPath.substr(0,domPath.length-1); }
+	var tempPath = domPath+"/WBAHTemp";
+	//Files.deleteFileIfExisting(tempPath);
+	Files.createDirectory(tempPath);
+	
+	for(i=0;i<dom.layers.length;i++){
+		//txt += fw.getDocumentDOM().layers[i].layerType + '\r\n';
+		for(j=0;j<dom.layers[i].elems.length;j++){
+			var img = dom.layers[i].elems[j];
+			if(!img.isLayer){
+				exportOptions = {
+					animAutoCrop: true,
+					animAutoDifference: false,
+					applyScale: false,
+					colorMode: "32 bit",
+					crop: true,
+					cropBottom: img.top+img.height,
+					cropLeft: img.left,
+					cropRight: img.left+img.width,
+					cropTop: img.top,
+					ditherMode: "none",
+					ditherPercent: 100,
+					exportFormat: "PNG",
+					frameInfo: [  ],
+					interlacedGIF: false,
+					jpegQuality: 80,
+					jpegSelPreserveButtons: false,
+					jpegSelPreserveText: true,
+					jpegSelQuality: 90,
+					jpegSelQualityEnabled: false,
+					jpegSmoothness: 0,
+					jpegSubsampling: 0,
+					localAdaptive: true,
+					lossyGifAmount: 0,
+					macCreator: "????",
+					macFileType: "????",
+					name: null,
+					numCustomEntries: 0,
+					numEntriesRequested: 0,
+					numGridEntries: 6,
+					optimized: true,
+					paletteEntries: null,
+					paletteInfo: null,
+					paletteMode: "adaptive",
+					paletteTransparency: "none",
+					percentScale: 100,
+					progressiveJPEG: false,
+					savedAnimationRepeat: 0,
+					sorting: "none",
+					useScale: true,
+					webSnapAdaptive: false,
+					webSnapTolerance: 14,
+					xSize: 0,
+					ySize: 0
+				};
+				dom.exportTo(tempPath + '/' + domName, exportOptions);
+				outtxt += '<Image Url="'+domName+'" X="'+img.left+'" Y="'+img.top+'"/>\r\n';
+			}
+		}
+	}
+}
+outtxt += '</WBA>';
+var frameTextFilePath = tempPath + "/FrameInfo.xml";
+Files.createFile(frameTextFilePath, "TEXT", "????");
+var frameTextFile = Files.open(frameTextFilePath, true);
+frameTextFile.writeUTF8(outtxt);
+frameTextFile.close();

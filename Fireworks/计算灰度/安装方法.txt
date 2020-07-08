@@ -1,0 +1,4 @@
+1、安装node
+2、把 计算灰度.jsf 和 calculating_average_grayscale.js 放入 %AppData%\Adobe\Fireworks CS6\Commands\
+3、并在这个文件夹运行 npm install get-pixels
+4、重启Fireworks

@@ -1,0 +1,48 @@
+﻿//--not for batch--
+
+/*var pixel = fw.getDocumentDOM().getSelectionBounds();
+for (var pi in pixel)
+{
+	//alert(pi + ':' + pixel[pi]);
+}*/
+
+function convertToWindowsURL(fwURL)
+{
+	fwURL = unescape(fwURL);
+	return fwURL.replace(/file:\/\/\/(\w)\|/i,'$1:');
+}
+	//Get the temporary path from FW
+	var tmpFilePath = Files.getTempFilePath(null);
+	//var tmpFileName = Math.round(Math.random() * 100000000).toString().concat('.png');
+	var tmpFileName = '计算灰度用临时文件.png';
+	//alert(tmpFilePath + "\n" + tmpFileName);
+		
+	var fwDOM = fw.getDocumentDOM();
+	//Export the current page in PNG32 format
+	//var result = fw.exportDocumentAs(null,tmpFilePath,{colorMode:"32 bit", exportFormat:"PNG"});
+	//fw.getDocumentDOM().exportElements([fw.selection[0]],tmpFilePath,'exportElements.png');
+	fwDOM.clipCopy();
+	fwDOM.clipPaste();
+	fwDOM.exportElements([fw.selection[0]],tmpFilePath,tmpFileName);
+	fwDOM.deleteSelection(false);
+	fwDOM.exitPaintMode();
+	//alert(fw.currentScriptDir + '/calculating_average_grayscale.bat');
+	//fw.launchApp(fw.currentScriptDir + '/calculating_average_grayscale.bat', tmpFilePath.concat(tmpFileName));
+
+	var batchFilePath = tmpFilePath + "/calculating_average_grayscale.bat";
+	//alert(batchFilePath);
+	Files.deleteFileIfExisting(batchFilePath);
+	Files.createFile(batchFilePath, "TEXT", "????");
+	var batchFile = Files.open(batchFilePath, true);
+	var batchText = '@echo off\n';
+	batchText += 'node "' + convertToWindowsURL(fw.currentScriptDir + '/calculating_average_grayscale.js') + '" "' + convertToWindowsURL(tmpFilePath + '/' + tmpFileName) + '"';
+	batchText += '\npause';
+
+	batchFile.write(batchText);
+	batchFile.close();
+
+	//fw.launchApp("file:///E|/Program Files/XnViewMP/xnviewmp.exe", '0000000D.png');
+	
+	fw.launchApp(batchFilePath, '');
+	//fw.selection[0] = s0;
+	//fw.getDocumentDOM().enterPaintMode(fw.getDocumentDOM().getPixelMask());

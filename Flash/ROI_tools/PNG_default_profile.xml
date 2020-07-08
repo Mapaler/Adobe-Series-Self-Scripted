@@ -1,0 +1,9 @@
+﻿<?xml version="1.0"?>
+<flash_profile version="1.0" name="PNG default">
+  <PublishPNGProperties enabled="true">
+    <MatchMovieDim>1</MatchMovieDim>
+    <Smooth>0</Smooth>
+    <BitDepth>8 位</BitDepth>
+    <MaxColors>2</MaxColors>
+  </PublishPNGProperties>
+</flash_profile>

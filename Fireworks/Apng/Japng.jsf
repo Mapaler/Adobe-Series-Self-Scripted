@@ -1,0 +1,132 @@
+var langFolder = Files.getLanguageDirectory();
+var arr = langFolder.split("/");
+var lang = arr[arr.length-1];
+if(lang.indexOf("Chinese") == -1){
+	str1 = "Skip first frame?\nThe first frame will be shown on APNG unsupported browsers.";
+}else{
+	str1 = "是否启用兼容支持？\n第一帧将仅被用于显示在不支持apng的浏览器上...";
+}
+
+var dom	= fw.getDocumentDOM();
+var delayTime = [];
+var i, id, totalFrames;
+
+var domPath = fw.getDocumentPath(dom);
+var domPathHandler = domPath.split("/");
+domPathHandler[domPathHandler.length-1] = "";
+domPath = domPathHandler.join("/");
+if(domPath[domPath.length-1]=="/"){ domPath = domPath.substr(0,domPath.length-1); }
+
+
+init();
+
+var params = "";
+var Compatible = fw.yesNoDialog(str1);
+if(Compatible){ params += " -skipFirstFrame" }
+
+var Looping = dom.frameLoopingCount;
+params += " -play " + Looping;
+
+
+if(domPath!=""){
+
+	
+
+	var tempPath = domPath+"/japngTemp";
+	Files.deleteFileIfExisting(tempPath);
+	Files.createDirectory(tempPath);
+
+	var frameTextFilePath = tempPath + "/framelist.txt";
+	Files.createFile(frameTextFilePath, "TEXT", "????");
+	var frameText = "";
+	for(i=1; i<=totalFrames; i++){
+		if(i<10){ id="0"+i.toString(); }else{ id=i.toString(); }
+		
+		var frameImageFilePath = tempPath + "/frame" + id + ".png";
+		dom.currentFrameNum = (i-1);
+		dom.exportTo(frameImageFilePath, exportOptions);
+		frameText += "frame" + id + ".png; " + delayTime[i-1]*10 + "; none; source\r\n";
+	}
+	
+	var frameTextFile = Files.open(frameTextFilePath, true);
+	frameTextFile.write(frameText);
+	frameTextFile.close();
+		
+	Files.copy(fw.currentScriptDir+"/japng.jar", tempPath+"/japng.jar");
+	var batchFilePath = tempPath + "/convert.bat";
+	Files.deleteFileIfExisting(batchFilePath);
+	Files.createFile(batchFilePath, "TEXT", "????");
+	var batchFile = Files.open(batchFilePath, true);
+	if(lang.indexOf("Chinese") == -1){
+		str2 = "Delete temp files?";
+	}else{
+		str2 = "是否删除临时文件？";
+	}
+	var delv = fw.yesNoDialog(str2);
+	if(delv){
+		var batchText = "@echo off\ncls\ncd /d %~dp0\njava -jar japng.jar -out animation.png -frames framelist.txt "+ params +"\ncopy/y .\\animation.png ..\\animation.png\ncd..\nrd /s/q japngTemp";
+	}else{
+		var batchText = "@echo off\ncls\ncd /d %~dp0\njava -jar japng.jar -out animation.png -frames framelist.txt "+ params +"\ncopy/y .\\animation.png ..\\animation.png";
+	}
+	
+	batchFile.write(batchText);
+	batchFile.close();
+	fw.launchApp(batchFilePath, []);
+
+}else{
+	alert("你必须先保存当前文件！");
+}
+
+
+//------ functions ------//
+function init(){
+	totalFrames = dom.frameCount;
+	for(i=0; i<totalFrames; i++){
+		delayTime.push(dom.frames[i].delay);
+	}
+	exportOptions = {
+		animAutoCrop: true,
+		animAutoDifference: false,
+		applyScale: false,
+		colorMode: "32 bit",
+		crop: false,
+		cropBottom: 0,
+		cropLeft: 0,
+		cropRight: 0,
+		cropTop: 0,
+		ditherMode: "none",
+		ditherPercent: 100,
+		exportFormat: "PNG",
+		frameInfo: [  ],
+		interlacedGIF: false,
+		jpegQuality: 80,
+		jpegSelPreserveButtons: false,
+		jpegSelPreserveText: true,
+		jpegSelQuality: 90,
+		jpegSelQualityEnabled: false,
+		jpegSmoothness: 0,
+		jpegSubsampling: 0,
+		localAdaptive: true,
+		lossyGifAmount: 0,
+		macCreator: "????",
+		macFileType: "????",
+		name: null,
+		numCustomEntries: 0,
+		numEntriesRequested: 0,
+		numGridEntries: 6,
+		optimized: true,
+		paletteEntries: null,
+		paletteInfo: null,
+		paletteMode: "adaptive",
+		paletteTransparency: "none",
+		percentScale: 100,
+		progressiveJPEG: false,
+		savedAnimationRepeat: 0,
+		sorting: "none",
+		useScale: true,
+		webSnapAdaptive: false,
+		webSnapTolerance: 14,
+		xSize: 0,
+		ySize: 0
+	};
+}

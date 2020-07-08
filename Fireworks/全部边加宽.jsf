@@ -1,0 +1,21 @@
+txt='';
+x=0;
+for(i=0;i<fw.getDocumentDOM().layers.length;i++){
+	//txt += fw.getDocumentDOM().layers[i].layerType + '\r\n';
+	for(j=0;j<fw.getDocumentDOM().layers[i].elems.length;j++){
+		var img = fw.getDocumentDOM().layers[i].elems[j];
+		if(!img.isLayer){
+			if(img.isEvenOddFill){
+				if(img.pathAttributes.brush != null){
+				//if(img.pathAttributes.brush.feedback!='brush')
+					//txt += img.name + ' ';
+					if (img.pathAttributes.brush.diameter > 0){
+						//if(img.name == '´ôÃ«')
+						img.pathAttributes.brush.diameter = 5;
+					}
+				}
+			}
+		}
+	}
+}
+//alert(txt);

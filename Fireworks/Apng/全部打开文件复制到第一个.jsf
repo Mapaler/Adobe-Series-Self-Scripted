@@ -1,0 +1,6 @@
+//fw.setActiveWindow(fw.documents[2]);
+//fw.getDocumentDOM().selectAll();
+for (i = 1;i<fw.documents.length;i++){
+	fw.documents[i].clipCopy();
+	fw.documents[0].clipPaste();
+}
